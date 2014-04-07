@@ -1,6 +1,6 @@
 package com.sukohi.lib;
 
-import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -10,57 +10,54 @@ public class Simple_Preferences {
 	public static final int DEFAULT_VALUE_INT = -1;
 	public static final long DEFAULT_VALUE_LONG = -1;
 	public static final boolean DEFAULT_VALUE_BOOLEAN = false;
+	private Context context;
+	private String preferencesName = "";
 	private SharedPreferences preferences;
 	private SharedPreferences.Editor editor;
 	
-	public Simple_Preferences(Context context, String name, int mode) {
+	public Simple_Preferences(Context context, String preferencesName) {
 		
-		preferences = context.getSharedPreferences(name, mode);
-		
-	}
-	
-	public void setString(String key, String value) {
-		
-		setBegin();
-        editor.putString(key, value);
-        setCommit();
+		this.context = context;
+		this.preferencesName = preferencesName;
+		preferences = context.getSharedPreferences(preferencesName, Activity.MODE_PRIVATE);
 		
 	}
 	
-	public void setInt(String key, int value) {
+	public void setMode(int mode) {
 		
-		setBegin();
-        editor.putInt(key, value);
-        setCommit();
+		preferences = context.getSharedPreferences(this.preferencesName, mode);
 		
 	}
 	
-	public void setLong(String key, long value) {
+	public void set(String key, String value) {
 		
-		setBegin();
-        editor.putLong(key, value);
-        setCommit();
+		_set(key, value);
 		
 	}
 	
-	public void setBoolean(String key, boolean value) {
+	public void set(String key, int value) {
 		
-		setBegin();
-        editor.putBoolean(key, value);
-        setCommit();
+		_set(key, String.valueOf(value));
 		
 	}
 	
-	@SuppressLint("CommitPrefEdits")
-	private void setBegin() {
+	public void set(String key, long value) {
+		
+		_set(key, String.valueOf(value));
+		
+	}
+	
+	public void set(String key, boolean value) {
+		
+		_set(key, String.valueOf(value));
+		
+	}
+	
+	private void _set(String key, String value) {
 		
 		editor = preferences.edit();
-		
-	}
-	
-	private void setCommit() {
-		
-		editor.commit();
+        editor.putString(key, value);
+        editor.commit();
 		
 	}
 	
@@ -72,19 +69,43 @@ public class Simple_Preferences {
 	
 	public int getInt(String key) {
 		
-		return preferences.getInt(key, DEFAULT_VALUE_INT);
+		String value = preferences.getString(key, DEFAULT_VALUE_STRING);
+		
+		if(value.equals(DEFAULT_VALUE_STRING)) {
+			
+			return DEFAULT_VALUE_INT;
+			
+		}
+		
+		return Integer.parseInt(value);
 		
 	}
 	
 	public long getLong(String key) {
 		
-		return preferences.getLong(key, DEFAULT_VALUE_LONG);
+		String value = preferences.getString(key, DEFAULT_VALUE_STRING);
+		
+		if(value.equals(DEFAULT_VALUE_STRING)) {
+			
+			return DEFAULT_VALUE_LONG;
+			
+		}
+		
+		return Long.parseLong(value);
 		
 	}
 	
 	public boolean getBoolean(String key) {
 		
-		return preferences.getBoolean(key, DEFAULT_VALUE_BOOLEAN);
+		String value = preferences.getString(key, DEFAULT_VALUE_STRING);
+		
+		if(value.equals(DEFAULT_VALUE_STRING)) {
+			
+			return DEFAULT_VALUE_BOOLEAN;
+			
+		}
+		
+		return Boolean.parseBoolean(value);
 		
 	}
 	
@@ -97,12 +118,13 @@ public class Simple_Preferences {
 }
 /*** Example 
 
-	Simple_Preferences sp = new Simple_Preferences(this, "user_data", Activity.MODE_PRIVATE);
-		
-	sp.setString("string_key", "string");
-	sp.setInt("int_key", 99);
-	sp.setLong("long_key", 999);
-	sp.setBoolean("boolean_key", true);
+	Simple_Preferences sp = new Simple_Preferences(this, "pref_name");
+	
+	sp.setMode(Activity.MODE_PRIVATE);		// Skippable (Default: Activity.MODE_PRIVATE)
+	sp.set("string_key", "string");
+	sp.set("int_key", (int)99);
+	sp.set("long_key", (long)999);
+	sp.set("boolean_key", true);
 
 	Log.v("String", sp.getString("string_key"));
 	Log.v("int", ""+ sp.getInt("int_key"));
